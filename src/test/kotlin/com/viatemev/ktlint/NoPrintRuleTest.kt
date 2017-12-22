@@ -1,27 +1,31 @@
-package yourpkgname
+package com.viatemev.ktlint
 
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.lint
+import com.viatemev.ktlint.NoPrintRule
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class NoVarRuleTest : Spek({
+class NoPrintRuleTest : Spek({
 
-    describe("no-var rule") {
+    describe("no-print rule") {
 
         // whenever KTLINT_DEBUG env variable is set to "ast" or -DktlintDebug=ast is used
         // com.github.shyiko.ktlint.test.(lint|format) will print AST (along with other debug info) to the stderr.
         // this can be extremely helpful while writing and testing rules.
         // uncomment the line below to take a quick look at it
-        // System.setProperty("ktlintDebug", "ast")
+        //System.setProperty("ktlintDebug", "ast")
 
-        val rule = NoVarRule()
+        val rule = NoPrintRule()
 
         it("should prohibit usage of var") {
-            assertThat(rule.lint("""fun fn() { var v = "var" }"""))
-                .isEqualTo(listOf(LintError(1, 12, "no-var", "Unexpected var, use val instead")))
+            assertThat(rule.lint("""fun fn() { println("Hello world") }"""))
+                    .isEqualTo(listOf(LintError(1,
+                            12,
+                            "no-print",
+                            "Do not use System.out.println in code, use logger instead")))
         }
     }
 })
