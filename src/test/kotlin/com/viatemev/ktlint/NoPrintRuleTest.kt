@@ -2,7 +2,6 @@ package com.viatemev.ktlint
 
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.lint
-import com.viatemev.ktlint.NoPrintRule
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -20,12 +19,56 @@ class NoPrintRuleTest : Spek({
 
         val rule = NoPrintRule()
 
-        it("should prohibit usage of var") {
+        it("should prohibit usage of println") {
             assertThat(rule.lint("""fun fn() { println("Hello world") }"""))
                     .isEqualTo(listOf(LintError(1,
                             12,
                             "no-print",
-                            "Do not use System.out.println in code, use logger instead")))
+                            "Do not use \"println\" in code, use logger instead")))
         }
+
+        it("should prohibit usage of print") {
+            assertThat(rule.lint("""fun fn() { print("Hello world") }"""))
+                    .isEqualTo(listOf(LintError(1,
+                            12,
+                            "no-print",
+                            "Do not use \"print\" in code, use logger instead")))
+        }
+
+        it("should prohibit usage of System.out.println") {
+            assertThat(rule.lint("""fun fn() { System.out.println("Hello world") }"""))
+                    .isEqualTo(listOf(LintError(1,
+                            23,
+                            "no-print",
+                            "Do not use \"println\" in code, use logger instead")))
+        }
+
+        it("should prohibit usage of System.out.print") {
+            assertThat(rule.lint("""fun fn() { System.out.print("Hello world") }"""))
+                    .isEqualTo(listOf(LintError(1,
+                            23,
+                            "no-print",
+                            "Do not use \"print\" in code, use logger instead")))
+        }
+
+        it("should prohibit usage of println in lambda expressions") {
+            assertThat(rule.lint("""fun fn(list) { list.forEach( { println("Hello," + it) } ) }"""))
+                    .isEqualTo(listOf(LintError(1,
+                            32,
+                            "no-print",
+                            "Do not use \"println\" in code, use logger instead")))
+        }
+
+
+        it("should not prohibit usage of println as string") {
+            assertThat(rule.lint("""fun fn() { LOGGER.log("println") }"""))
+                    .isEqualTo(emptyList<LintError>())
+        }
+
+        it("should not prohibit usage of print as string") {
+            assertThat(rule.lint("""fun fn() { LOGGER.log("print") }"""))
+                    .isEqualTo(emptyList<LintError>())
+        }
+
     }
 })
