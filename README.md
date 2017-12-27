@@ -1,0 +1,1 @@
+# Kotlin lint print rule
